@@ -8,7 +8,7 @@ cd debs
 
 - Set packages list, for example We want to download wget, unzip packages.
 ```
-export PACKAGES="wget unzip"
+PACKAGES="wget unzip"
 ```
 
 - Download packages with dependencies using apt.
