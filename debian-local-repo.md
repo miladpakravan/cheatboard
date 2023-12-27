@@ -11,6 +11,11 @@ cd debs
 PACKAGES="wget unzip"
 ```
 
+- If you want to download all upgradeable packages, set packages to this:
+```
+PACKAGES=$(apt list --upgradable | tail +2 | cut -d/ -f1 | tr '\r\n' ' ')
+```
+
 - Download packages with dependencies using apt.
 ```
 apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
