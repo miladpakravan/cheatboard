@@ -10,7 +10,8 @@ sudo apt install -y tmux
 ## Download tmux resurrect
 
 ```
-git clone https://github.com/tmux-plugins/tmux-resurrect ~/
+cd ~
+git clone https://github.com/tmux-plugins/tmux-resurrect
 mv tmux-resurrect .tmux-resurrect
 ```
 
