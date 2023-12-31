@@ -20,11 +20,11 @@ server {
     autoindex on;
   }
 
-  location ~ /(.*)/conf {
+  location ~ /debian/conf {
     deny all;
   }
 
-  location ~ /(.*)/db {
+  location ~ /debian/db {
     deny all;
   }
 }
