@@ -2,7 +2,7 @@
 
 ## Install packages
 ```
-apt-get install -y curl wget tmux nginx reprepro gpg dpkg-sig proxychains
+apt-get install -y curl wget tmux nginx reprepro gpg proxychains
 ```
 
 ## Configure NGINX:
@@ -120,16 +120,8 @@ wget -O /etc/apt/trusted.gpg.d/local-repo.gpg http://192.168.23.91/repo.gpg.key
 
 Change sources.list to local repository:
 ```
-echo 'deb [trusted=yes] http://192.168.23.91/debian bullseye main' > /etc/apt/sources.list.d/local-repo.list
-```
-
-Set high prority to local repository:
-```
-cat > /etc/apt/preferences.d/99-local-repo <<EOF
-Package: *
-Pin: origin 192.168.23.91
-Pin-Priority: 900
-EOF
+cp /etc/apt/sources.list /etc/apt/sources.list.old
+echo 'deb [trusted=yes] http://192.168.23.91/debian bullseye main' > /etc/apt/sources.list
 ```
 
 Update apt list:

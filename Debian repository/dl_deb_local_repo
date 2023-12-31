@@ -1,0 +1,21 @@
+#!/bin/bash
+if [ "$1" == "dist-upgrade" ]; then
+    PACKAGES=$(apt list --upgradable | tail +2 | cut -d/ -f1 | tr '\r\n' ' ')
+else
+    PACKAGES="$1"
+fi
+
+echo '--------------------- Reloading Debian repository ---------------------'
+apt update
+
+
+echo '--------------------- Downloading packages ---------------------'
+cd /root/debs
+apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
+  --no-conflicts --no-breaks --no-replaces --no-enhances \
+  --no-pre-depends ${PACKAGES} | grep "^\w")
+
+
+rm -f ./Packages*
+dpkg-scanpackages -m . > Packages
+dpkg-scanpackages -m . | gzip > ./Packages.gz
