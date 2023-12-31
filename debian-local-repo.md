@@ -25,6 +25,7 @@ apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
 
 - Generate packages meta.
 ```
+dpkg-scanpackages -m . > Packages
 dpkg-scanpackages -m . | gzip > Packages.gz
 ```
 
