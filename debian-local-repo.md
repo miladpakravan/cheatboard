@@ -33,25 +33,25 @@ dpkg-scanpackages -m . | gzip > Packages.gz
 
 - Backup old sources.list:
 ```
-sudo mv /etc/apt/sources.list /etc/apt/sources.list.bak
+mv /etc/apt/sources.list /etc/apt/sources.list.bak
 ```
 
 - Edit sources.list:
 ```
-sudo 'deb [trusted=yes] file:/tmp/local-repo /' > /etc/apt/sources.list
+echo 'deb [trusted=yes] file:/tmp/local-repo /' > /etc/apt/sources.list
 ```
 
 - Update repository cache:
 ```
-sudo apt update
+apt update
 ```
 
 - Update all packages if needed:
 ```
-sudo apt -y dist-upgrade
+apt -y dist-upgrade
 ```
 
 - Install packages needed:
 ```
-sudo apt install -y wget unzip
+apt install -y wget unzip
 ```
