@@ -69,7 +69,7 @@ GPG_KEY_ID=$(gpg --list-secret-key --with-subkey-fingerprint | grep 'ssb' -A 1 |
 
 Export GPG key.
 ```
-gpg --armor --output /var/www/apt/repo.gpg.key --export-options export-minimal --export $GPG_KEY_ID
+gpg --armor --output /var/www/apt/local-repo.gpg --export-options export-minimal --export $GPG_KEY_ID
 ```
 
 Insert distributions meta.
@@ -115,7 +115,8 @@ We assume local repository deployed on 192.168.23.91.
 
 Import GPG key:
 ```
-wget -O /etc/apt/trusted.gpg.d/local-repo.gpg http://192.168.23.91/repo.gpg.key
+wget -O /etc/apt/trusted.gpg.d/local-repo.gpg http://192.168.23.91/local-repo.gpg
+apt-key add /etc/apt/trusted.gpg.d/local-repo.gpg
 ```
 
 Change sources.list to local repository:
