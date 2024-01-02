@@ -113,17 +113,25 @@ reprepro includedeb bullseye /root/debs/*.deb
 ## Use repository on server:
 We assume local repository deployed on 192.168.23.91.
 
-Import GPG key:
-```
-install -m 0755 -d /etc/apt/keyrings
-curl -fsSL http://192.168.23.91/local-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/local-repo.gpg
-chmod a+r /etc/apt/keyrings/local-repo.gpg
-```
-
 Change sources.list to local repository:
 ```
 cp /etc/apt/sources.list /etc/apt/sources.list.old
-echo 'deb http://192.168.23.91/debian bullseye main' > /etc/apt/sources.list
+echo 'deb [trusted=yes] http://192.168.23.91/debian bullseye main' > /etc/apt/sources.list
+```
+
+Update apt list:
+```
+apt update
+```
+
+Install Dependencies to sign repository:
+```
+apt install -y curl wget gnupg
+```
+
+Import GPG key:
+```
+curl -fsSL http://192.168.23.91/local-repo.gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/local-repo.gpg
 ```
 
 Update apt list:
