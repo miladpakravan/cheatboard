@@ -1,6 +1,6 @@
 # Deploy GitLab CE and GitLab runner on docker
 
-# Files:
+## Docker compose:
 
 - docker-compose.yml :
 ```
@@ -43,29 +43,25 @@ networks:
 
 ```
 
-- gitlab-runner-register.sh :
+## Register Gitlab Runner:
+Run this command and connect runner to Gitlab.
 ```
-registration_token='<token>'
-url='http://<host_ip>'
-
-docker exec -it gitlab-runner1 \
-  gitlab-runner register \
-    --non-interactive \
-    --registration-token ${registration_token} \
-    --locked=false \
-    --description docker-stable \
-    --url ${url} \
-    --executor docker \
-    --docker-image docker:stable \
-    --docker-volumes "/var/run/docker.sock:/var/run/docker.sock" \
-    --docker-network-mode gitlab-network
+docker exec -it gitlab-runner1 gitlab-runner register
 ```
 
-**Replace <host_ip> with your host ip.**
-**Add new Runner to Gitlab and Replace <token> with it's token**
-
-
-# Instruction to set GitLab root password:
+## Instruction to set GitLab root password:
 ```
 docker exec -it gitlab-web gitlab-rake "gitlab:password:reset[root]"
+```
+
+## Instructions to build Debian package from Gitlab Repositories
+- Build custom docker image and ready build environment on it.
+- Load docker image to Runner machine.
+- Set **image** to custom docker image in 'config/gitlab-runner/config.toml'
+- Prevent runner to pull docker image from internet:
+
+## Prevent Runner to pull docker image from internet:
+add this line to [[runners]] in 'config/gitlab-runner/config.toml'
+```
+pull_policy = "never"
 ```
