@@ -45,23 +45,23 @@ gpg --armor --output /var/www/aptly/local-repo.gpg.key --export-options export-m
 
 For example we want to create new repository for debian basic packages.
 ```
-aptly repo create -comment="debian" -component="main" -distribution="bullseye" debian
+aptly repo create -comment="debian bullseye" -component="main" -distribution="debian" bullseye
 ```
 
 Publish repository:
 ```
-aptly publish repo debian
+aptly publish repo -architectures amd64 bullseye
 ```
 
-Copy downloaded Debian packages to **/root/debs** and add to repository with reprepro
+Copy downloaded Debian packages to **/root/.debs** and add to repository with reprepro
 ```
-aptly repo add debian /root/debs
+aptly repo add debian /root/.debs
 
 ```
 
 Update repository publish:
 ```
-aptly publish update bullseye
+aptly publish update -passphrase="changeme" debian
 ```
 
 ## Use repository on server:
