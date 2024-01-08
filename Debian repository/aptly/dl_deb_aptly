@@ -29,3 +29,5 @@ apt update
 echo '--------------------- Syncing Private repository ---------------------'
 aptly repo add debian /root/debs
 
+echo '--------------------- Fix owner ---------------------'
+chown -R www-data:www-data /var/www/aptly
