@@ -38,7 +38,7 @@ GPG_KEY_ID=$(gpg --list-secret-key --with-subkey-fingerprint | grep 'sec' -A 1 |
 
 Export GPG key.
 ```
-gpg --armor --output /var/www/aptly/local-repo.gpg.key --export-options export-minimal --export $GPG_KEY_ID
+gpg --armor --output /var/www/aptly/public/local-repo.gpg.key --export-options export-minimal --export $GPG_KEY_ID
 ```
 
 # Ready and publish repository with aptly
@@ -93,7 +93,11 @@ aptly publish update debian
 ```
 
 ## Prevent download again dependency packages
+
+
+
 ```
+curl -fsSL http://127.0.0.1/local-repo.gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/local-repo.gpg
 cat > /etc/apt/sources.list <<EOF
 # Aptly repository
 deb [trusted=yes] http://127.0.0.1 debian main
