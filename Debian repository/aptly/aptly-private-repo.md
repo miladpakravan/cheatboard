@@ -41,9 +41,27 @@ Export GPG key.
 gpg --armor --output /var/www/aptly/local-repo.gpg.key --export-options export-minimal --export $GPG_KEY_ID
 ```
 
+# Ready and publish repository with aptly
+
+For example we want to create new repository for debian basic packages.
+```
+aptly repo create -comment="debian" -component="main" -distribution="bullseye" debian
+```
+
+Publish repository:
+```
+aptly publish repo debian
+```
+
 Copy downloaded Debian packages to **/root/debs** and add to repository with reprepro
 ```
 aptly repo add debian /root/debs
+
+```
+
+Update repository publish:
+```
+aptly publish update bullseye
 ```
 
 ## Use repository on server:

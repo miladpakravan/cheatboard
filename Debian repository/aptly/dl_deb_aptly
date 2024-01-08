@@ -10,10 +10,10 @@ cp /etc/apt/sources.list.debian /etc/apt/sources.list
 apt update
 
 echo '--------------------- Removing old downloaded packages ---------------------'
-rm -rf /root/debs/*
+rm -rf /root/.debs/*
 
 echo '--------------------- Downloading packages ---------------------'
-cd /root/debs
+cd /root/.debs
 apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
   --no-conflicts --no-breaks --no-replaces --no-enhances \
   --no-pre-depends ${PACKAGES} | grep "^\w")
@@ -22,12 +22,13 @@ echo '--------------------- Generate packages meta ---------------------'
 dpkg-scanpackages -m . > Packages
 dpkg-scanpackages -m . | gzip > Packages.gz
 
-echo '--------------------- Reloading local repository ---------------------'
-cp /etc/apt/sources.list.local /etc/apt/sources.list
-apt update
-
 echo '--------------------- Syncing Private repository ---------------------'
-aptly repo add debian /root/debs
+aptly repo add debian /root/.debs
+
+echo '--------------------- Update publish repository ---------------------'
+aptly publish update bullseye
 
 echo '--------------------- Fix owner ---------------------'
 chown -R www-data:www-data /var/www/aptly
+
+echo 'done'
