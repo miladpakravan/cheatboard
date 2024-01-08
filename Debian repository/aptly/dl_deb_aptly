@@ -18,17 +18,14 @@ apt-get download $(apt-cache depends --recurse --no-recommends --no-suggests \
   --no-conflicts --no-breaks --no-replaces --no-enhances \
   --no-pre-depends ${PACKAGES} | grep "^\w")
 
-echo '--------------------- Generate packages meta ---------------------'
-dpkg-scanpackages -m . > Packages
-dpkg-scanpackages -m . | gzip > Packages.gz
-
 echo '--------------------- Syncing Private repository ---------------------'
-aptly repo add debian /root/.debs
+aptly repo add bullseye /root/.debs
 
 echo '--------------------- Update publish repository ---------------------'
-aptly publish update -passphrase="changeme" bullseye
+aptly publish update -passphrase="changeme" debian
 
 echo '--------------------- Fix owner ---------------------'
 chown -R www-data:www-data /var/www/aptly
 
 echo 'done'
+
