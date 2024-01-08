@@ -171,6 +171,7 @@ systemctl enable aptly-api
 
 Change Nginx config:
 ```
+cat > /etc/nginx/sites-available/aptly <<EOF
 server {
       listen 80;
       root /var/www/aptly/public;
