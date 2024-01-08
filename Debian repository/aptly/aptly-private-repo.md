@@ -92,6 +92,24 @@ Update repository publish:
 aptly publish update debian
 ```
 
+## Prevent download again dependency packages
+```
+cat > /etc/apt/sources.list <<EOF
+# Aptly repository
+deb [trusted=yes] http://127.0.0.1 debian main
+
+# Debian repository
+deb http://deb.debian.org/debian bullseye main contrib non-free
+deb-src http://deb.debian.org/debian bullseye main contrib non-free
+
+deb http://deb.debian.org/debian-security/ bullseye-security main contrib non-free
+deb-src http://deb.debian.org/debian-security/ bullseye-security main contrib non-free
+
+deb http://deb.debian.org/debian bullseye-updates main contrib non-free
+deb-src http://deb.debian.org/debian bullseye-updates main contrib non-free
+EOF
+```
+
 ## Use repository on server:
 We assume local repository deployed on 192.168.23.91.
 
