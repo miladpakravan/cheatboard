@@ -9,9 +9,9 @@ apt-get install -y aptly nginx
 Configure NGINX vhost:
 ```
 cat > /etc/nginx/sites-available/default <<EOF
-erver {
+server {
       listen 80;
-      root /var/www/aptly;
+      root /var/www/aptly/public;
       server_name repo.local;
       location / {
               autoindex on;
@@ -26,7 +26,7 @@ systemctl restart nginx
 ```
 
 ## Generate gpg key for sign repository packages
-Generate GPG key.
+Generate GPG key (can be without password)
 ```
 gpg --default-new-key-algo rsa4096 --gen-key --keyring pubring.gpg
 ```
@@ -43,14 +43,42 @@ gpg --armor --output /var/www/aptly/local-repo.gpg.key --export-options export-m
 
 # Ready and publish repository with aptly
 
+Set aptly config:
+```
+cat > /root/.aptly.conf <<EOF
+{
+  "rootDir": "/var/www/aptly",
+  "downloadConcurrency": 4,
+  "downloadSpeedLimit": 0,
+  "architectures": ["amd64"],
+  "dependencyFollowSuggests": false,
+  "dependencyFollowRecommends": true,
+  "dependencyFollowAllVariants": false,
+  "dependencyFollowSource": false,
+  "dependencyVerboseResolve": false,
+  "gpgDisableSign": false,
+  "gpgDisableVerify": false,
+  "gpgProvider": "gpg",
+  "downloadSourcePackages": false,
+  "skipLegacyPool": true,
+  "ppaDistributorID": "debian",
+  "ppaCodename": "bullseye",
+  "skipContentsPublishing": false,
+  "FileSystemPublishEndpoints": {},
+  "S3PublishEndpoints": {},
+  "SwiftPublishEndpoints": {}
+}
+EOF
+```
+
 For example we want to create new repository for debian basic packages.
 ```
-aptly repo create -comment="debian bullseye" -component="main" -distribution="debian" bullseye
+aptly repo create -comment="debian bullseye" -architectures="amd64" -component="main" -distribution="debian" bullseye
 ```
 
 Publish repository:
 ```
-aptly publish repo -architectures amd64 bullseye
+aptly publish repo -architectures="amd64" bullseye
 ```
 
 Copy downloaded Debian packages to **/root/.debs** and add to repository with reprepro
@@ -61,7 +89,7 @@ aptly repo add debian /root/.debs
 
 Update repository publish:
 ```
-aptly publish update -passphrase="changeme" debian
+aptly publish update debian
 ```
 
 ## Use repository on server:
@@ -70,7 +98,7 @@ We assume local repository deployed on 192.168.23.91.
 Change sources.list to local repository:
 ```
 cp /etc/apt/sources.list /etc/apt/sources.list.old
-echo 'deb [trusted=yes] http://192.168.23.91 bullseye main' > /etc/apt/sources.list
+echo 'deb [trusted=yes] http://192.168.23.91 debian main' > /etc/apt/sources.list
 ```
 
 Update apt list:

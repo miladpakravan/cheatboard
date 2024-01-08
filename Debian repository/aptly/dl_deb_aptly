@@ -22,10 +22,9 @@ echo '--------------------- Syncing Private repository ---------------------'
 aptly repo add bullseye /root/.debs
 
 echo '--------------------- Update publish repository ---------------------'
-aptly publish update -passphrase="changeme" debian
+aptly publish update -passphrase="fortress" debian
 
 echo '--------------------- Fix owner ---------------------'
 chown -R www-data:www-data /var/www/aptly
 
 echo 'done'
-
