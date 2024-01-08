@@ -8,7 +8,7 @@ apt-get install -y aptly nginx
 ## Configure NGINX:
 Configure NGINX vhost:
 ```
-cat > /etc/nginx/sites-available/default <<EOF
+cat > /etc/nginx/sites-available/aptly <<EOF
 server {
       listen 80;
       root /var/www/aptly/public;
@@ -22,6 +22,8 @@ EOF
 
 Restart NGINX systemd
 ```
+ln -s /etc/nginx/sites-avaiable/aptly /etc/nginx/sites-enabled/aptly
+rm -f /etc/nginx/sites-enabled/default
 systemctl restart nginx
 ```
 
@@ -94,8 +96,6 @@ aptly publish update debian
 
 ## Prevent download again dependency packages
 
-
-
 ```
 curl -fsSL http://127.0.0.1/local-repo.gpg.key | gpg --dearmor -o /etc/apt/trusted.gpg.d/local-repo.gpg
 cat > /etc/apt/sources.list <<EOF
@@ -141,4 +141,62 @@ curl -fsSL http://192.168.23.91/local-repo.gpg.key | gpg --dearmor -o /etc/apt/t
 Update apt list:
 ```
 apt update
+```
+
+## Enable Aptly API (not required):
+
+Create systemctl
+```
+cat > /lib/systemd/system/aptly-api.service <<EOF
+[Unit]
+Description=Aptly API
+After=network.target
+Documentation=man:aptly(1)
+Documentation=https://www.aptly.info/doc/commands/
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/aptly api serve -listen=0.0.0.0:8080 -no-lock
+#-config=/root/.aptly.conf
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl start aptly-api
+systemctl status aptly-api
+systemctl enable aptly-api
+```
+
+Change Nginx config:
+```
+server {
+      listen 80;
+      root /var/www/aptly/public;
+      server_name repo.local;
+      location / {
+              autoindex on;
+      }
+      location /api {
+        auth_basic "Restricted Content";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      }
+}
+EOF
+```
+
+Secure API by set username and password:
+```
+apt install -y apache2-utils
+htpasswd -c /etc/nginx/.htpasswd cicd
+```
+
+Restart NGINX service to apply changes:
+```
+systemctl restart nginx
 ```
