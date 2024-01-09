@@ -176,6 +176,9 @@ server {
       listen 80;
       root /var/www/aptly/public;
       server_name repo.local;
+
+      client_max_body_size 500m;
+
       location / {
               autoindex on;
       }
