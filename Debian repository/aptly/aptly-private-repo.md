@@ -156,7 +156,7 @@ Documentation=https://www.aptly.info/doc/commands/
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/aptly api serve -listen=0.0.0.0:8080 -no-lock
+ExecStart=/usr/bin/aptly api serve -listen=0.0.0.0:8080 -no-lock -config=/root/.aptly.conf
 #-config=/root/.aptly.conf
 
 [Install]
