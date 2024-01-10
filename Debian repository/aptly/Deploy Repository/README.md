@@ -203,3 +203,11 @@ Restart NGINX service to apply changes:
 ```
 systemctl restart nginx
 ```
+
+
+## Create multiple repositoris for testing and stable
+```
+aptly repo create -comment="product-v1 testing" -architectures="amd64" -component="main" -distribution="product-v1/testing" product-v1-testing
+aptly repo create -comment="product-v1 stable" -architectures="amd64" -component="main" -distribution="product-v1/stable" product-v1-stable
+aptly publish repo product-v1-testing; aptly publish repo product-v1-stable
+```
