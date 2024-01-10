@@ -54,46 +54,45 @@ def main():
     
     response = ""
 
-    match args.action:
-        case "ready":
-            response = get_req("/version")
-            message = "OK"
-        case "upload_pkg":
-            if None in (args.repo, args.upload_dir, args.pkg_path):
-                print("""For upload package, you must send this arguments:\n  --repo, --upload_dir, --pkg_path""")
-                exit(1)
-            else:
-                # Upload file
-                response = post_req(f"/files/{args.upload_dir}", files={"file": open(args.pkg_path, "rb")})
-                if response:
-                    # Add uploaded file to bullseye repository
-                    response = post_req(f"/repos/{args.repo}/file/{args.upload_dir}")
-                    if response['Report']['Added']:
-                        message = "Package uploaded and added to repository successfully"
-        case "search_pkg":
-            if None in (args.repo, args.pkg_name):
-                print("""For search package, you must send this arguments:\n  --repo, --pkg_name""")
-                exit(1)
-            # Search packages
-            response = get_req(f"/repos/{args.repo}/packages?q={args.pkg_name}")
+    if "ready" == args.action:
+        response = get_req("/version")
+        message = "OK"
+    elif "upload_pkg" == args.action:
+        if None in (args.repo, args.upload_dir, args.pkg_path):
+            print("""For upload package, you must send this arguments:\n  --repo, --upload_dir, --pkg_path""")
+            exit(1)
+        else:
+            # Upload file
+            response = post_req(f"/files/{args.upload_dir}", files={"file": open(args.pkg_path, "rb")})
             if response:
-                message = response
-        case "list_repos":
-            # View publish list
-            response = get_req("/publish")
-            if response:
-                message = response
-        case "repo_pkgs":
-            if args.repo is None:
-                print("""For search package, you must send this arguments:\n  --repo""")
-                exit(1)
-            # Show packages
-            response = get_req(f"/repos/{args.repo}/packages")
-            if response:
-                message = response
-        case "examples":
-            script_name = os.path.basename(__file__)
-            message = f"""
+                # Add uploaded file to bullseye repository
+                response = post_req(f"/repos/{args.repo}/file/{args.upload_dir}")
+                if response['Report']['Added']:
+                    message = "Package uploaded and added to repository successfully"
+    elif "search_pkg" == args.action:
+        if None in (args.repo, args.pkg_name):
+            print("""For search package, you must send this arguments:\n  --repo, --pkg_name""")
+            exit(1)
+        # Search packages
+        response = get_req(f"/repos/{args.repo}/packages?q={args.pkg_name}")
+        if response:
+            message = response
+    elif "list_repos" == args.action:
+        # View publish list
+        response = get_req("/publish")
+        if response:
+            message = response
+    elif "repo_pkgs" == args.action:
+        if args.repo is None:
+            print("""For search package, you must send this arguments:\n  --repo""")
+            exit(1)
+        # Show packages
+        response = get_req(f"/repos/{args.repo}/packages")
+        if response:
+            message = response
+    elif "examples" == args.action:
+        script_name = os.path.basename(__file__)
+        message = f"""
 Check is API ready:       python3 ./{script_name} --action ready
 Upload Debian package:    python3 ./{script_name} --action upload_pkg --repo bullseye --upload_dir cicd --pkg_path ./build/debian/test-1.0.0.deb
 Search Debian package:    python3 ./{script_name} --action search_pkg --repo bullseye --pkg_name test
