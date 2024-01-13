@@ -1,6 +1,7 @@
 import requests
 import argparse
 import os
+import json
 
 # ----------------------------- Config ----------------------------- #
 APTLY_API_URL = "http://192.168.23.91/api"
@@ -18,8 +19,8 @@ def get_req(endpoint):
 
 
 # Function to make a POST request
-def post_req(endpoint, data=None, files=None):
-    response = requests.post(f"{APTLY_API_URL}{endpoint}", auth=(USERNAME, PASSWORD), data=data, files=files)
+def post_req(endpoint, data=None, json=None, files=None):
+    response = requests.post(f"{APTLY_API_URL}{endpoint}", auth=(USERNAME, PASSWORD), data=data, json=json, files=files)
     if 200 == response.status_code:
         return response.json()
     return None
@@ -34,8 +35,12 @@ def del_req(endpoint):
 
 
 # Function to make a DELETE request
-def put_req(endpoint, data=None):
-    response = requests.put(f"{APTLY_API_URL}{endpoint}", auth=(USERNAME, PASSWORD), data=data)
+def put_req(endpoint, data=None, json=None):
+    if json is None:
+        response = requests.put(f"{APTLY_API_URL}{endpoint}", auth=(USERNAME, PASSWORD), data=data)
+    else:
+        headers = {'Content-Type': 'application/json'}
+        response = requests.put(f"{APTLY_API_URL}{endpoint}", auth=(USERNAME, PASSWORD), json=json, headers=headers)
     if 200 == response.status_code:
         return response.json()
     return None
@@ -49,6 +54,7 @@ def main():
     parser.add_argument("--pkg_name", type=str, help="Package name")
     parser.add_argument("--dist", type=str, help="Repository distribution")
     parser.add_argument("--repo", type=str, help="Repository")
+    parser.add_argument("--debug", action='store_true', help="enable debug mode")
     
     args = parser.parse_args()
     
@@ -58,17 +64,31 @@ def main():
         response = get_req("/version")
         message = "OK"
     elif "upload_pkg" == args.action:
-        if None in (args.repo, args.upload_dir, args.pkg_path):
-            print("""For upload package, you must send this arguments:\n  --repo, --upload_dir, --pkg_path""")
+        if None in (args.dist, args.repo, args.upload_dir, args.pkg_path):
+            print("""For upload package, you must send this arguments:\n  --dist --repo, --upload_dir, --pkg_path""")
             exit(1)
         else:
             # Upload file
             response = post_req(f"/files/{args.upload_dir}", files={"file": open(args.pkg_path, "rb")})
             if response:
-                # Add uploaded file to bullseye repository
+                # Add uploaded file to repository
                 response = post_req(f"/repos/{args.repo}/file/{args.upload_dir}")
+                print('upload response : {}'.format(response))
                 if response['Report']['Added']:
-                    message = "Package uploaded and added to repository successfully"
+                    json_data = {
+                        "SourceKind": "local",
+                        "Sources": [
+                            {
+                            "Name": args.repo
+                            }
+                        ],
+                        "Architectures": ["amd64"],
+                        "Distribution": args.dist
+                    }
+                    # Update published repository
+                    response = put_req(f"/publish/:./{args.dist}", json=json_data)
+                    message = "Package uploaded to repository successfully"
+                    
     elif "search_pkg" == args.action:
         if None in (args.repo, args.pkg_name):
             print("""For search package, you must send this arguments:\n  --repo, --pkg_name""")
@@ -94,13 +114,15 @@ def main():
         script_name = os.path.basename(__file__)
         message = f"""
 Check is API ready:       python3 ./{script_name} --action ready
-Upload Debian package:    python3 ./{script_name} --action upload_pkg --repo bullseye --upload_dir cicd --pkg_path ./build/debian/test-1.0.0.deb
+Upload Debian package:    python3 ./{script_name} --action upload_pkg --dist debian --repo bullseye --upload_dir cicd --pkg_path ./build/debian/test-1.0.0.deb
 Search Debian package:    python3 ./{script_name} --action search_pkg --repo bullseye --pkg_name test
 List repositories:        python3 ./{script_name} --action list_repos
 List repository packages: python3 ./{script_name} --action repo_pkgs --repo bullseye
                 """
     try:
         print(message)
+        if args.debug:
+            print("Debug | response: {}".format(response))
     except:
         print("Error | response: {}".format(response))
 
