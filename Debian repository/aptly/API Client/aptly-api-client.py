@@ -73,7 +73,6 @@ def main():
             if response:
                 # Add uploaded file to repository
                 response = post_req(f"/repos/{args.repo}/file/{args.upload_dir}")
-                print('upload response : {}'.format(response))
                 if response['Report']['Added']:
                     json_data = {
                         "SourceKind": "local",
